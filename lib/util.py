@@ -51,7 +51,7 @@ def api (method, params):
         raise exceptions.RPCError('{}'.format(response_json['error']))
 
 def price (numerator, denominator, block_index):
-    if block_index >= 294500 or config.TESTNET: # Protocol change.
+    if block_index >= 0 or config.TESTNET: # Protocol change.
         return fractions.Fraction(numerator, denominator)
     else:
         numerator = D(numerator)
@@ -117,7 +117,7 @@ def log (db, command, category, bindings):
                 else:
                     divisibility = 'indivisible'
                     unit = 1
-                if bindings['callable'] and (bindings['block_index'] > 283271 or config.TESTNET):   # Protocol change.
+                if bindings['callable'] and (bindings['block_index'] > 0 or config.TESTNET):   # Protocol change.
                     callability = 'callable from {} for {} XCP/{}'.format(isodt(bindings['call_date']), bindings['call_price'], bindings['asset'])
                 else:
                     callability = 'uncallable'

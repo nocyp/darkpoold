@@ -46,14 +46,14 @@ def validate (db, source, destination, asset, quantity, divisible, callable_, ca
 
     # Callable, or not.
     if not callable_:
-        if block_index >= 312500 or config.TESTNET: # Protocol change.
+        if block_index >= 0 or config.TESTNET: # Protocol change.
             call_date = 0
             call_price = 0.0
-        elif block_index >= 310000:                 # Protocol change.
-            if call_date:
-                problems.append('call date for non‐callable asset')
-            if call_price:
-                problems.append('call price for non‐callable asset')
+        #elif block_index >= 310000:                 # Protocol change.
+        #    if call_date:
+        #        problems.append('call date for non‐callable asset')
+        #    if call_price:
+        #        problems.append('call price for non‐callable asset')
 
     # Valid re-issuance?
     cursor = db.cursor()
@@ -88,19 +88,19 @@ def validate (db, source, destination, asset, quantity, divisible, callable_, ca
             problems.append('cannot transfer a non‐existent asset')
 
     # Check for existence of fee funds.
-    if quantity or (block_index >= 315000 or config.TESTNET):   # Protocol change.
-        if not reissuance or (block_index < 310000 or config.TESTNET):  # Pay fee only upon first issuance. (Protocol change.)
+    if quantity or (block_index >= 0 or config.TESTNET):   # Protocol change.
+        if not reissuance or (config.TESTNET):  # Pay fee only upon first issuance. (Protocol change.)
             cursor = db.cursor()
             cursor.execute('''SELECT * FROM balances \
                               WHERE (address = ? AND asset = ?)''', (source, config.XCP))
             balances = cursor.fetchall()
             cursor.close()
-            if block_index >= 291700 or config.TESTNET:     # Protocol change.
-                fee = int(0.5 * config.UNIT)
-            elif block_index >= 286000 or config.TESTNET:   # Protocol change.
-                fee = 5 * config.UNIT
-            elif block_index > 281236 or config.TESTNET:    # Protocol change.
-                fee = 5
+            if block_index >= 0 or config.TESTNET:     # Protocol change.
+                fee = int(5 * config.UNIT)
+            #elif block_index >= 286000 or config.TESTNET:   # Protocol change.
+            #    fee = 5 * config.UNIT
+            #elif block_index > 281236 or config.TESTNET:    # Protocol change.
+            #    fee = 5
             if fee and (not balances or balances[0]['quantity'] < fee):
                 problems.append('insufficient funds')
 
@@ -137,7 +137,7 @@ def parse (db, tx, message):
 
     # Unpack message.
     try:
-        if (tx['block_index'] > 283271 or config.TESTNET) and len(message) == LENGTH_2: # Protocol change.
+        if (tx['block_index'] > 0 or config.TESTNET) and len(message) == LENGTH_2: # Protocol change.
             asset_id, quantity, divisible, callable_, call_date, call_price, description = struct.unpack(FORMAT_2, message)
             call_price = round(call_price, 6) # TODO: arbitrary
             try:

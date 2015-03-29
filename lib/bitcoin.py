@@ -254,6 +254,7 @@ def op_push (i):
 
 def serialise (encoding, inputs, destination_outputs, data_output=None, change_output=None, source=None, public_key=None):
     s  = (1).to_bytes(4, byteorder='little')                # Version
+    s += (int(time.time())).to_bytes(4, byteorder='little') # nTime
 
     # Number of inputs.
     s += var_int(int(len(inputs)))
@@ -383,9 +384,9 @@ def sort_unspent_txouts(unspent, allow_unconfirmed_inputs):
 
 def wif_prefix (is_test):
     if is_test:
-        return b'\xf1'
+        return b'\xef'
     else:
-        return b'\x9e'
+        return b'\x99'
 
 def private_key_to_public_key (private_key_wif):
     try:
@@ -448,7 +449,7 @@ def transaction (tx_info, encoding='auto', fee_per_kb=config.DEFAULT_FEE_PER_KB,
             raise exceptions.InputError('Invalid private key.')
 
     # Protocol change.
-    if encoding == 'pubkeyhash' and get_block_count() < 293000 and not config.TESTNET:
+    if encoding == 'pubkeyhash' and get_block_count() < 0 and not config.TESTNET:
         raise exceptions.TransactionError('pubkeyhash encoding unsupported before block 293000')
 
     # Validate source and all destination addresses.
