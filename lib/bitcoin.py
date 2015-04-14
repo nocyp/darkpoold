@@ -100,7 +100,7 @@ def connect (host, payload, headers):
         except requests.exceptions.SSLError as e:
             raise e
         except requests.exceptions.ConnectionError:
-            print('Could not connect to Bitcoind. Sleeping for five seconds. (Try {}/{})'.format(i+1, TRIES), file=sys.stderr)
+            print('Could not connect to Bitcoind. Sleeping for five seconds. (Try {}/{}) {} {} {} '.format(i+1, TRIES, host, payload, headers), file=sys.stderr)
             time.sleep(5)
     return None
 
